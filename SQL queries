@@ -1,0 +1,10 @@
+Below are the sample queries I have run at YN:<br>
+The table names have been changed for confidentiality purposes<br>
+<br>
+<b>QUERY 1:</b>
+The aim of this query is to find judges in YN network that have judged the highest number of startup competitions.
+I now want to find judges from our startp competitions. I have to look in three tables: our judge table (where
+each judge has an id but doesn't actually have a name), people table (where there are names of people from our
+database) and finally, the table with e-mail addresses.
+I also want to sort this list by people who have judged most startup competitions. I want to only look at the entries 
+that have actually been judged.
