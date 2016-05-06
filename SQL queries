@@ -1,10 +1,71 @@
-Below are the sample queries I have run at YN:<br>
-The table names have been changed for confidentiality purposes<br>
-<br>
-<b>QUERY 1:</b>
+Below are the sample queries I have run at YN:
+The table names have been changed for confidentiality purposes
+
+QUERY 1:
 The aim of this query is to find judges in YN network that have judged the highest number of startup competitions.
-I now want to find judges from our startp competitions. I have to look in three tables: our judge table (where
-each judge has an id but doesn't actually have a name), people table (where there are names of people from our
-database) and finally, the table with e-mail addresses.
-I also want to sort this list by people who have judged most startup competitions. I want to only look at the entries 
-that have actually been judged.
+The judge table contains information on judges but without their actual names, judge_entries includes all of the entries
+made by judges, people table that includes the names
+of people in the database and emails table which includes the e-mail addresses for everyone in our database.
+The entries must have already been judged.
+
+SELECT COUNT(DISTINCT judge_entries.entry_id), judges.person_id, emails.email, people.first_name, people.last_name
+FROM judges_table
+INNER JOIN judge_entries ON judge_entries.judge_id = judges.id
+INNER JOIN people ON people.id = judges.person_id
+INNER JOIN emails ON emails.person_id = judges_table.person_id
+WHERE judge_entries.is_judged = 1 
+AND judges_table.judge_round_id IN (1, 2, 3)
+GROUP BY judges_table.person_id
+
+QUERY 2: 
+The aim of this query is to find the number of people that have unsubscribed from the e-mail list. Again, the table names
+have been changed for confidentiality purposes. Tables used: members (with the people who are members of the network),
+competition entries (from startup competitions) and unsuscribers (i.e. people who have decided to unsubscribe from
+further opportunities).
+
+select count(*)
+from members
+inner join entries on entries.id = members.entry_id
+inner join entry_rounds on entry_rounds.id = entries.entry_round_id
+left join unsubscribers on unsubscribers.person_id = members.person_id
+where unsubscribers.type = 3
+and unsubscribers.id is not null
+and members.member_type_id in (1,2)
+and entries.id in (123, 456, 789)
+group by members.person_id
+
+QUERY 3:
+The aim of this query is to find out how many people from our existing network have created an entry for a startup 
+competition that we have e-mailed them about. The tables used include: entry_rounds (with all competition entry rounds),
+members (of the network), entries (startup competition entries). The member type 1 and 2 means that they are a leader
+or an active member.
+
+select distinct entries.id
+from entries
+inner join entry_rounds  on entry_rounds.id = entries.entry_round_id
+inner join members on members.entry_id = entries.id
+where entries.identifier = 'email campaign name'
+and entries.submitted_at > "2015-09-14 02:16:00"
+and members.member_type_id in (1,2)
+and members.person_id in (
+    select members.person_id
+    from members
+    where members.member_type_id in (1,2)
+    and members.entry_id in (1,2,3)
+    
+QUERY 4:
+The aim of this query is to find entrepreneurs and startups from our database from Iran, Egypt and Brazil. They also need to
+have been judged before (with a normalized score of at least 0.5) and their entries must have been submitted after 06:02am
+on the 1st January 2015. The tables used: entries (startup competition entries), people (from the network), members (of the
+network), locations (from all of our startups and entrepreneurs) and data (normalized scores from previous startup 
+competitions).
+
+select entries.id
+from entries
+inner join members on members.entry_id = entries.id
+inner join people on people.id = members.person_id
+inner join locations on locations.id = people.location_id
+inner join data on data.data_id = entries.id
+where country in ("Iran", "Egypt", "Brazil")
+and data.value >= 0.5
+and entries.submitted_at > "2015-01-01 06:02:00"
